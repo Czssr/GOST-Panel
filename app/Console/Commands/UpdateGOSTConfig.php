@@ -47,5 +47,6 @@ class UpdateGOSTConfig extends Command
         Port::query()->update(['last_dosage' => 0]);
 
         (new PortService())->serverPortCoverUser();
+        (new PortService())->nodePortCoverUser();
     }
 }

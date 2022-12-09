@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Node extends BaseModel {
     protected $fillable = [
-        'ip', 'panel_prefix', 'panel_port', 'port', 'auth', 'level',
+        'ip', 'metrics_prefix', 'metrics_port', 'panel_prefix', 'panel_port', 'port', 'auth', 'level', 'type',
         'remark', 'status',
     ];
 

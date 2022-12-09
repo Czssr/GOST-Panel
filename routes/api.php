@@ -36,6 +36,7 @@ Route::namespace('Api\Admin')->prefix('admin')->middleware('api.setJWTGuard:admi
         Route::resource('user', 'UserController');
         // 节点
         Route::resource('node', 'NodeController');
+        Route::get('node/other/reload/{id}', 'NodeController@reload');
         // 审计
         Route::resource('audit', 'AuditController');
     });

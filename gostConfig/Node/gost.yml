@@ -5,10 +5,25 @@ api:
   auth:
     username: user  # API的账号 【务必修改】
     password: pass  # API的密码 【务必修改】
+metrics:
+  addr: :9000  # 获取流量数据的端口 【务必修改】
+  path: /metrics  # 获取流量数据的地址 【务必修改】
+
+# 【中转模式】的节点，需要这一段。【直连模式】的节点不需要，要删掉
 services:
-  name: service-0
+  name: service-default-0
   addr: ":20000" # 代理端口【按需修改】
   handler:
     type: socks5  # 协议类型【按需修改】
   listener:
     type: tcp
+
+# 【中转模式】的节点，要删掉。【直连模式】的节点不需要，需要这一段
+bypasses:
+  name: bypass-0
+  reload: 5s  # 热更新时间
+  redis:
+    addr: 192.168.50.121:6379 # redis IP:端口
+    db: 1
+    password: 123456  # redis 密码
+    key: gostpanel_database_gost:bypasses:bypass-0

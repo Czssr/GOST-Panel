@@ -11,6 +11,30 @@ class NodeService
 
 
     /**
+     * 获取面板流量数据
+     * @return string|void
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function metrics($node) {
+        try {
+            $client = new Client();
+            $request = $client->request('get', "http://{$node->ip}:{$node->metrics_port}/{$node->metrics_prefix}");
+            $body = $request->getBody();
+            $response = $body->getContents();
+//            dd($response);
+            return $response;
+        } catch (ClientException $e) {
+            // write log
+            $response = [
+                'code'=> $e->getCode(),
+                'message'=> $e->getMessage(),
+            ];
+            echo json_encode($response);exit;
+        }
+    }
+
+
+    /**
      * 查看/更新 配置
      * @param $method
      * @param $data
@@ -107,7 +131,8 @@ class NodeService
                 'code'=> $e->getCode(),
                 'message'=> $e->getMessage(),
             ];
-            echo json_encode($response);exit;
+            return $response;
+//            echo json_encode($response);exit;
         }
     }
 
@@ -133,7 +158,7 @@ class NodeService
         }
     }
      */
-    public function Service($node, $method = 'post', $data='') {
+    public function Service($node, $method = 'post', $data='', $server_name='') {
         try {
             // 分割节点-认证范围
             $node_auth = explode(':', $node->auth);
@@ -145,8 +170,15 @@ class NodeService
                     $node_auth[1]
                 ]
             ];
-            $params['json'] = $data;
-            $request = $client->request($method, $url, $params);
+            if ($method == 'delete') {
+                $request = $client->request($method, $url.'/'.$server_name, $params);
+            } elseif ($method == 'put') {
+                $params['json'] = $data;
+                $request = $client->request($method, $url.'/'.$server_name, $params);
+            } else {
+                $params['json'] = $data;
+                $request = $client->request($method, $url, $params);
+            }
             $body = $request->getBody();
             $contents = $body->getContents();
 //            dd($contents);
@@ -159,7 +191,8 @@ class NodeService
                 'code'=> $e->getCode(),
                 'message'=> $e->getMessage(),
             ];
-            echo json_encode($response);exit;
+            return $response;
+//            echo json_encode($response);exit;
         }
     }
 

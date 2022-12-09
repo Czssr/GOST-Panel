@@ -172,19 +172,15 @@ class GostService
             ];
             if ($method == 'delete') {
                 $request = $client->request($method, env('GOST_Web_API').'/config/services/'.$server_name, $params);
-                $body = $request->getBody();
-                $contents = $body->getContents();
             } elseif ($method == 'put') {
                 $params['json'] = $data;
                 $request = $client->request($method, env('GOST_Web_API').'/config/services/'.$server_name, $params);
-                $body = $request->getBody();
-                $contents = $body->getContents();
             } else {
                 $params['json'] = $data;
                 $request = $client->request($method, env('GOST_Web_API').'/config/services', $params);
-                $body = $request->getBody();
-                $contents = $body->getContents();
             }
+            $body = $request->getBody();
+            $contents = $body->getContents();
 //            dd($contents);
             $response = json_decode($contents, true);
 //            dd($response);
