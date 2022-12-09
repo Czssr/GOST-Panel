@@ -1,0 +1,14 @@
+api:
+  addr: :18080  # API接口端口 【务必修改】
+  pathPrefix: /api  # API接口地址 【务必修改】
+  accesslog: true
+  auth:
+    username: user  # API的账号 【务必修改】
+    password: pass  # API的密码 【务必修改】
+services:
+  name: service-0
+  addr: ":20000" # 代理端口【按需修改】
+  handler:
+    type: socks5  # 协议类型【按需修改】
+  listener:
+    type: tcp
