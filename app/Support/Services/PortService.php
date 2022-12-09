@@ -17,14 +17,17 @@ class PortService
     public function serverPortCreateUser($user) {
         $nodeList = Node::query()->where([['status', '=', 1]])->get();
         foreach ($nodeList as $n) {
-            self::singleServerCreate($user, $n);
+            if ($n->type === 1) {
+                self::singleServerCreate($user, $n);
+            } else {
+                self::directlySingleServerCreate($user, $n);
+            }
         }
     }
 
 
     /**
-     * 服务端重启脚本 覆盖线上配置到服务端
-     * @param $user
+     * 服务端重启脚本 覆盖线上配置到中转服务端
      * @return void
      */
     public function serverPortCoverUser() {
@@ -32,7 +35,7 @@ class PortService
         $portModel = new Port();
         $nodeModel = new Node();
 
-        $nodeList = $nodeModel->query()->get();
+        $nodeList = $nodeModel->query()->where(['type'=>1, 'status'=>1])->get();
         foreach ($nodeList as $n) {
             self::singleChainCreate($n);
             $portList = $portModel->query()->where(['node_id'=>$n->id])->get();
@@ -43,9 +46,35 @@ class PortService
         }
     }
 
+    /**
+     * 服务端重启脚本 覆盖线上配置到节点服务端
+     * @return void
+     */
+    public function nodePortCoverUser($node='') {
+        $userModel = new User();
+        $portModel = new Port();
+        $nodeModel = new Node();
+        if ($node) {
+            $portList = $portModel->query()->where(['node_id'=>$node->id])->get();
+            foreach ($portList as $v) {
+                $userInfo = $userModel->query()->find($v->user_id);
+                self::directlySingleServerCreate($userInfo, $node);
+            }
+        } else {
+            $nodeList = $nodeModel->query()->where(['type'=>2, 'status'=>1])->get();
+            foreach ($nodeList as $n) {
+                $portList = $portModel->query()->where(['node_id'=>$n->id])->get();
+                foreach ($portList as $v) {
+                    $userInfo = $userModel->query()->find($v->user_id);
+                    self::directlySingleServerCreate($userInfo, $n);
+                }
+            }
+        }
+    }
+
 
     /**
-     * 创建单个节点
+     * 创建中转单个节点
      * @param $node
      * @return void
      */
@@ -80,7 +109,7 @@ class PortService
     }
 
     /**
-     * 创建单个服务
+     * 创建中转单个服务
      * @param $user [用户信息]
      * @param $node [节点信息]
      * @return void
@@ -145,6 +174,83 @@ class PortService
                 'handler' => [
                     'type' => 'socks5',
                     'chain' => $chainName,
+                    'auth' => [
+                        'username' => $user_auth[0],
+                        'password' => $user_auth[1]
+                    ]
+                ],
+                'listener' => [
+                    'type' => 'tcp'
+                ]
+            ]);
+        }
+
+    }
+
+
+    /**
+     * 创建直连单个服务
+     * @param $user [用户信息]
+     * @param $node [节点信息]
+     * @return void
+     */
+    public function directlySingleServerCreate($user, $node) {
+        $nodeService = new NodeService();
+        $portModel = new Port();
+        $user_id = $user->id;
+        $user_auth = explode(':', $user->auth);
+        // 先检查用户是否已经有这个节点了
+        $is_user_port = $portModel->query()->where([
+            ['user_id', '=', $user_id],
+            ['node_id', '=', $node->id]
+        ])->first();
+        // 如果存在则跳出
+        if ($is_user_port) {
+            // 创建服务
+            $nodeService->Service($node, 'post', [
+                'name' => 'service-' . $user_id . '-' . $is_user_port->id,
+                'addr' => ':' . $is_user_port->server_port,
+                'bypass' =>  'bypass-0',    // 审计名称
+                'handler' => [
+                    'type' => 'socks5',
+                    'auth' => [
+                        'username' => $user_auth[0],
+                        'password' => $user_auth[1]
+                    ]
+                ],
+                'listener' => [
+                    'type' => 'tcp'
+                ]
+            ]);
+        } else {
+            // 分割节点-端口范围
+            $node_port_range = explode('-', $node->port);
+            $node_port = null; // 服务端口
+            // 检测服务-端口是否被占用
+            for ($s=$node_port_range[0]; $s<=$node_port_range[1]; $s++) {
+                $is_node_occupy = $portModel->query()->where([
+                    'node_id' => $node->id,
+                    'node_port' => $s,
+                ])->first();
+                if (!$is_node_occupy) {
+                    $node_port = $s;
+                    break;
+                }
+            }
+            // 创建节点-端口数据
+            $p_res = $portModel->create([
+                'user_id' => $user_id,
+                'node_id' => $node->id,
+                'node_port' => $node_port,
+                'server_port' => $node_port,
+            ]);
+            // 创建服务
+            $nodeService->Service($node, 'post', [
+                'name' => 'service-' . $user_id . '-' . $p_res->id,
+                'addr' => ':' . $node_port,
+                'bypass' =>  'bypass-0',    // 审计名称
+                'handler' => [
+                    'type' => 'socks5',
                     'auth' => [
                         'username' => $user_auth[0],
                         'password' => $user_auth[1]

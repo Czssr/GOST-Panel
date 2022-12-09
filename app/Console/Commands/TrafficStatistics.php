@@ -7,6 +7,7 @@ use App\Models\Port;
 use App\Models\User;
 use App\Models\UserFlow;
 use App\Support\Services\GostService;
+use App\Support\Services\NodeService;
 use App\Support\Services\PortService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -45,12 +46,70 @@ class TrafficStatistics extends Command
      */
     public function handle()
     {
+        $nodeModel = new Node();
         $portModel = new Port();
         $userFlowModel = new UserFlow();
         $gostService = new GostService();
+        $nodeService = new NodeService();
         while (true) {
             $total_server = 0;
             $total_dosage = 0;
+            // 直连节点数据统计
+            $nodeList = $nodeModel->query()->where(['type' => 2, 'status'=>1])->get();
+            foreach ($nodeList as $n) {
+                $result = $nodeService->metrics($n);
+                $isMatched = preg_match_all('/gost_service_transfer_output_bytes_total{host="localhost.localdomain",service="(.*)"}(.*)/', $result, $matches);
+                if ($isMatched) {
+                    foreach ($matches[1] as $k => $m) {
+                        $total_server += 1;
+                        $name = explode('-', $m);   // port的ID和用户的ID
+                        $user_id = $name[1];
+                        $p_info = $portModel->query()->where([
+                            'id' => $name[2],
+                            'user_id' => $name[1],
+                        ])->first();
+                        if ($p_info) {
+                            $user_yl = 0;   // 用户流量
+                            $yl = (int)ceil((int)$matches[2][$k] / 1048576);    // 取整(字节 / 1048576 = MB)    流量
+                            if (!$p_info->last_dosage || $p_info->last_dosage == 0) {
+                                $user_yl = $yl;
+                                $total_dosage += $yl;
+                                $p_info->update([
+                                    'last_dosage' => $yl,
+                                    'total_dosage' => $p_info->total_dosage + $yl,
+                                    'last_dosage_time' => Carbon::now()->toDateTimeString(),
+                                ]);
+                            } else {
+                                $user_yl = $yl - $p_info->last_dosage;
+                                $total_dosage += $yl - $p_info->last_dosage;
+                                $p_info->update([
+                                    'last_dosage' => $yl,
+                                    'total_dosage' => $p_info->total_dosage + ($yl - $p_info->last_dosage),
+                                    'last_dosage_time' => Carbon::now()->toDateTimeString(),
+                                ]);
+                            }
+                            // 用户每日流量统计
+                            $userFlowInfo = $userFlowModel::query()->where([
+                                'user_id' => $user_id,
+                                'statistical_date' => Carbon::today()->toDateTimeString(),
+                            ])->first();
+                            if (!$userFlowInfo) {
+                                $userFlowModel::query()->create([
+                                    'user_id' => $user_id,
+                                    'total' => $user_yl,
+                                    'statistical_date' => Carbon::today()->toDateTimeString(),
+                                ]);
+                            } else {
+                                $userFlowInfo->increment('total', $user_yl);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 中转节点数据统计
+            $zdNodeList = $nodeModel->query()->where(['type' => 1, 'status'=>1])->get();
+            if (!empty($zdNodeList)) break;
             $result = $gostService->metrics();
             $isMatched = preg_match_all('/gost_service_transfer_output_bytes_total{host="localhost.localdomain",service="(.*)"}(.*)/', $result, $matches);
             if ($isMatched) {
