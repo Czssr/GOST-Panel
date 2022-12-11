@@ -1,1 +1,0 @@
-import{$ as a}from"./index.5191b12d.js";function i(e){const t=new FormData;return t.append("file",e),a({url:"/api/v1/files",method:"post",data:t,headers:{"Content-Type":"multipart/form-data"}})}function o(e){return a({url:"/api/v1/files",method:"delete",params:{filePath:e}})}export{o as d,i as u};
