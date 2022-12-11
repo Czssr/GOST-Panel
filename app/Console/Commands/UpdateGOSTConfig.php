@@ -24,7 +24,7 @@ class UpdateGOSTConfig extends Command
      *
      * @var string
      */
-    protected $description = '特殊情况，重新覆盖GOST的配置文件 比如重启了服务端';
+    protected $description = '特殊情况，重新覆盖GOST的配置文件 比如重启了中转服务端';
 
     /**
      * Create a new command instance.
@@ -44,9 +44,9 @@ class UpdateGOSTConfig extends Command
     public function handle()
     {
         //  【重要】 先清空历史流量统计，避免统计流量不正确
-        Port::query()->update(['last_dosage' => 0]);
-
-        (new PortService())->serverPortCoverUser();
-        (new PortService())->nodePortCoverUser();
+//        Port::query()->update(['last_dosage' => 0]);
+//
+//        (new PortService())->serverPortCoverUser();
+//        (new PortService())->nodePortCoverUser();
     }
 }

@@ -123,6 +123,7 @@ class NodeController extends BaseController
 
     public function reload($id) {
         $node_info = Node::query()->find($id);
+        Port::query()->where('node_id', $id)->update(['last_dosage' => 0]); // 先清空历史流量统计，避免统计流量不正确
         (new PortService())->nodePortCoverUser($node_info);
         return $this->success();
     }

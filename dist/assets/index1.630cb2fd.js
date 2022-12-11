@@ -1,0 +1,1 @@
+import{_ as t,h as o,a as n,f as r,e as s}from"./index.5191b12d.js";const a={},c={style:{padding:"30px"}};function l(_,d){const e=o("el-alert");return n(),r("div",c,[s(e,{closable:!1,title:"\u83DC\u5355\u4E09\u7EA7-1",type:"error"})])}const f=t(a,[["render",l]]);export{f as default};
