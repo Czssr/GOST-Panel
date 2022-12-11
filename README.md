@@ -74,4 +74,11 @@ php artisan TrafficStatistics
 ```
 
 
+## 界面预览
+![image](https://github.com/Czssr/GOST-Panel/raw/main/IMG/vue3-element-admin.png)
+![image](https://github.com/Czssr/GOST-Panel/raw/main/IMG/vue3-element-admin%20(1).png)
+![image](https://github.com/Czssr/GOST-Panel/raw/main/IMG/vue3-element-admin%20(4).png)
+![image](https://github.com/Czssr/GOST-Panel/raw/main/IMG/vue3-element-admin%20(2).png)
+![image](https://github.com/Czssr/GOST-Panel/raw/main/IMG/vue3-element-admin%20(3).png)
+
 
