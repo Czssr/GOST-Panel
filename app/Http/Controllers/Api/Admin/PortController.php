@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 class PortController extends BaseController
 {
 
+    /**
+     * Notes:
+     * @param Request $request
+     * @return mixed
+     */
     public function index(Request $request) {
         $limit = $request->input('limit');
         $user_id = $request->input('user_id');
@@ -22,6 +27,11 @@ class PortController extends BaseController
     }
 
 
+    /**
+     * Notes:
+     * @param Request $request
+     * @return mixed
+     */
     public function store(Request $request) {
         $data = $request->all();
         $node_info = Port::query()->create($data);
@@ -29,6 +39,12 @@ class PortController extends BaseController
     }
 
 
+    /**
+     * Notes:
+     * @param Port $port
+     * @param Request $request
+     * @return mixed
+     */
     public function update(Port $port, Request $request) {
         $data = $request->all();
         $port->update($data);
@@ -36,6 +52,13 @@ class PortController extends BaseController
     }
 
 
+    /**
+     * Notes:
+     * @param Port $port
+     * @param Request $request
+     * @return mixed
+     * @throws \Exception
+     */
     public function destroy(Port $port, Request $request) {
         $port->delete();
         return $this->success();
