@@ -5,7 +5,7 @@ GOST官网：https://latest.gost.run/
 
 #### Server文件夹
 ``
-存放的是服务端的配置文件
+存放的是中转服务端的配置文件
 ``
 
 #### Node文件夹

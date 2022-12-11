@@ -1,1 +1,0 @@
-import{_ as c,h as e,a as n,f as a,e as t,b as r}from"./index.5191b12d.js";const _={},l={style:{padding:"30px"}};function i(d,p){const o=e("router-view"),s=e("el-alert");return n(),a("div",l,[t(s,{closable:!1,title:"\u83DC\u5355\u4E8C\u7EA7",type:"success"},{default:r(()=>[t(o)]),_:1})])}const m=c(_,[["render",i]]);export{m as default};

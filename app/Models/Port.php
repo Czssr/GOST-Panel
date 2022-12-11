@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Port extends BaseModel {
     protected $fillable = [
@@ -10,4 +11,8 @@ class Port extends BaseModel {
     ];
 
 
+
+    public function hasOneNode():HasOne {
+        return $this->hasOne(Node::class, 'id', 'node_id');
+    }
 }

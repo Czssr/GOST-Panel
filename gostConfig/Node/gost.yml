@@ -18,7 +18,7 @@ services:
   listener:
     type: tcp
 
-# 【中转模式】的节点，要删掉。【直连模式】的节点不需要，需要这一段
+# 【中转模式】的节点，要删掉。【直连模式】的节点，需要这一段
 bypasses:
   name: bypass-0
   reload: 5s  # 热更新时间
