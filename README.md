@@ -47,12 +47,14 @@ php artisan TrafficStatistics
 - 进入项目根的GM目录执行 npm install
 - 修改 .env.production 文件里的网址
 - 执行 npm run build:prod
-- 执行完了之后，会在根目录生成一个dist的文件夹，把里面的东西上传到宝塔就好了
+- 执行完了之后，会在目录生成一个dist的文件夹，把里面的东西上传到宝塔就好了
 
 
 #### 直接修改模式
 - 因为很多人不会vue编译什么的，所以有这个模式，直接改地址即可
-- 根目录下有一个dist目录，就是后台，修改请求地址，static/encConfig.js里面的URL
+- 根目录下有一个dist目录，就是编译好的后台，修改请求地址，static/encConfig.js里面的URL
+- 然后上传到你的后台目录里，访问即可。
+- 前后端分离的，应该有两个域名，比如后台服务的是server.a.com 后台界面的是admin.a.com这样
   
   
   
